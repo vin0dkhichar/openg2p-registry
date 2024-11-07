@@ -11,9 +11,11 @@
                         options="{'no_create': True}"
                         invisible="context.get('default_supplier_rank')  &lt; 1"
                     />
+                    <field name="project" readonly="true" />
                     <field
                         name="odk_app_user"
                         options="{'no_create': True}"
+                        domain="[('project_id', '=', project)]"
                         invisible="context.get('default_supplier_rank') &lt; 1"
                     />
                 </group>

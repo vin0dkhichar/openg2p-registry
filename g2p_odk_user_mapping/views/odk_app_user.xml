@@ -6,6 +6,7 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="odk_user_id" />
+                    <field name="project_id" />
                     <field name="name" />
                     <field name="partner_id" />
                 </tree>
@@ -23,4 +24,19 @@
               </p>
             </field>
         </record>
+        <record id="action_odk_app_users" model="ir.actions.act_window">
+            <field name="name">ODK APP USERS</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">odk.app.user</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+        </record>
+        <menuitem
+        id="odk_app_users"
+        name="ODK App Users"
+        parent="g2p_odk_importer.odk_menu_root"
+        sequence="10"
+        action="action_odk_app_users"
+    />
+
 </odoo>
