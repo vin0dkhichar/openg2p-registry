@@ -14,6 +14,11 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: g2p_odk_user_mapping
+#: model:ir.model.fields,field_description:g2p_odk_user_mapping.field_odk_app_user__active
+msgid "Active"
+msgstr ""
+
+#. module: g2p_odk_user_mapping
 #: model:ir.model,name:g2p_odk_user_mapping.model_res_partner
 msgid "Contact"
 msgstr ""
@@ -42,7 +47,7 @@ msgstr ""
 #. odoo-python
 #: code:addons/g2p_odk_user_mapping/models/res_partner.py:0
 #, python-format
-msgid "Failed to fetch app users"
+msgid "Failed to fetch app users from ODK"
 msgstr ""
 
 #. module: g2p_odk_user_mapping
@@ -58,6 +63,18 @@ msgstr ""
 #. module: g2p_odk_user_mapping
 #: model:ir.model.fields,field_description:g2p_odk_user_mapping.field_odk_app_user__write_date
 msgid "Last Updated on"
+msgstr ""
+
+#. module: g2p_odk_user_mapping
+#. odoo-python
+#: code:addons/g2p_odk_user_mapping/models/res_partner.py:0
+#, python-format
+msgid "Login failed. Check your ODK credentials."
+msgstr ""
+
+#. module: g2p_odk_user_mapping
+#: model:ir.actions.act_window,name:g2p_odk_user_mapping.action_odk_app_users
+msgid "ODK APP USERS"
 msgstr ""
 
 #. module: g2p_odk_user_mapping
@@ -78,6 +95,11 @@ msgid "ODK App User Name"
 msgstr ""
 
 #. module: g2p_odk_user_mapping
+#: model:ir.ui.menu,name:g2p_odk_user_mapping.odk_app_users
+msgid "ODK App Users"
+msgstr ""
+
+#. module: g2p_odk_user_mapping
 #: model:ir.model.fields,field_description:g2p_odk_user_mapping.field_res_partner__odk_config_id
 #: model:ir.model.fields,field_description:g2p_odk_user_mapping.field_res_users__odk_config_id
 msgid "ODK Config"
@@ -91,6 +113,17 @@ msgstr ""
 #. module: g2p_odk_user_mapping
 #: model:ir.model.fields,field_description:g2p_odk_user_mapping.field_odk_app_user__partner_id
 msgid "Partner"
+msgstr ""
+
+#. module: g2p_odk_user_mapping
+#: model:ir.model.fields,field_description:g2p_odk_user_mapping.field_odk_app_user__project_id
+msgid "Project"
+msgstr ""
+
+#. module: g2p_odk_user_mapping
+#: model:ir.model.fields,field_description:g2p_odk_user_mapping.field_res_partner__project
+#: model:ir.model.fields,field_description:g2p_odk_user_mapping.field_res_users__project
+msgid "Project ID"
 msgstr ""
 
 #. module: g2p_odk_user_mapping
