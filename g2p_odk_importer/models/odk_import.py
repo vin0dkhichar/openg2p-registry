@@ -183,7 +183,7 @@ class OdkImport(models.Model):
                         "name": "ODK Pull Cron " + rec.odk_config.name + " #" + str(rec.id),
                         "active": True,
                         "interval_number": rec.interval_hours,
-                        "interval_type": "minutes",
+                        "interval_type": "hours",
                         "model_id": self.env["ir.model"].search([("model", "=", "odk.import")]).id,
                         "state": "code",
                         "code": "model.browse(" + str(rec.id) + ").import_records()",
