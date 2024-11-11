@@ -107,7 +107,7 @@ class TestVCIIssuerRegistry(TransactionCase):
         cred_subject = cred["credentialSubject"]
 
         self.assertTrue("OpenG2PRegistryVerifiableCredential" in cred["type"])
-        self.assertTrue("Givenname Familyname" in [name["value"] for name in cred_subject["name"]])
+        self.assertTrue("Givenname Familyname" in [name["value"] for name in cred_subject["fullName"]])
         self.assertTrue(not cred_subject["email"])
         self.assertTrue(not cred_subject["phone"])
         self.assertTrue(not cred_subject["addressLine1"])
