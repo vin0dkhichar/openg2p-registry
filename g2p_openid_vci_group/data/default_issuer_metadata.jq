@@ -21,23 +21,7 @@
                 "fullName": {
                     "display": [
                         {
-                            "name": "Name",
-                            "locale": "en"
-                        }
-                    ]
-                },
-                "gender": {
-                    "display": [
-                        {
-                            "name": "Gender",
-                            "locale": "en"
-                        }
-                    ]
-                },
-                "dateOfBirth": {
-                    "display": [
-                        {
-                            "name": "Date of Birth",
+                            "name": "Household Name",
                             "locale": "en"
                         }
                     ]
@@ -45,7 +29,7 @@
                 "addressLine1": {
                     "display": [
                         {
-                            "name": "Address Line 1",
+                            "name": "Household Address Line 1",
                             "locale": "en"
                         }
                     ]
@@ -53,7 +37,7 @@
                 "locality": {
                     "display": [
                         {
-                            "name": "Locality",
+                            "name": "Household Locality",
                             "locale": "en"
                         }
                     ]
@@ -61,7 +45,7 @@
                 "region": {
                     "display": [
                         {
-                            "name": "region",
+                            "name": "Household Region",
                             "locale": "en"
                         }
                     ]
@@ -69,15 +53,47 @@
                 "UIN": {
                     "display": [
                         {
-                            "name": "Registrant ID",
+                            "name": "Household ID",
                             "locale": "en"
                         }
                     ]
                 },
-                "nationalID": {
+                "headName": {
                     "display": [
                         {
-                            "name": "National ID",
+                            "name": "Household Head Name",
+                            "locale": "en"
+                        }
+                    ]
+                },
+                "headGender": {
+                    "display": [
+                        {
+                            "name": "Household Head Gender",
+                            "locale": "en"
+                        }
+                    ]
+                },
+                "headDateOfBirth": {
+                    "display": [
+                        {
+                            "name": "Household Head Date of Birth",
+                            "locale": "en"
+                        }
+                    ]
+                },
+                "headNationalID": {
+                    "display": [
+                        {
+                            "name": "Household Head National ID",
+                            "locale": "en"
+                        }
+                    ]
+                },
+                "members": {
+                    "display": [
+                        {
+                            "name": "Other Household Members",
                             "locale": "en"
                         }
                     ]
@@ -89,21 +105,23 @@
                 "name": .name,
                 "locale": "en",
                 "logo": {
-                    "url": (.web_base_url + "/g2p_openid_vci/static/description/icon.png"),
+                    "url": (.web_base_url + "/g2p_openid_vci_group/static/description/icon.png"),
                     "alt_text": "a square logo of a OpenG2P"
                 },
-                "background_color": "#13b9cf",
-                "text_color": "#19234f"
+                "background_color": "#d1a1bd",
+                "text_color": "#2e100a"
             }
         ],
         "order": [
             "fullName",
             "UIN",
-            "gender",
-            "dateOfBirth",
             "addressLine1",
             "locality",
-            "region"
+            "region",
+            "headName",
+            "headGender",
+            "headDateOfBirth",
+            "members"
         ]
     }
 ]
