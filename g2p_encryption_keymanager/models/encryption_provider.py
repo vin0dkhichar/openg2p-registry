@@ -5,7 +5,7 @@ import json
 import logging
 import os
 import secrets
-from datetime import datetime, timezone
+from datetime import datetime
 
 import requests
 from cryptography import x509
@@ -39,7 +39,7 @@ class KeymanagerEncryptionProvider(models.Model):
 
     @api.model
     def km_generate_current_time(self):
-        return f'{datetime.now(timezone.utc).isoformat(timespec = "milliseconds")}Z'
+        return f'{datetime.now().isoformat(timespec = "milliseconds")}Z'
 
     keymanager_api_base_url = fields.Char("Keymanager API Base URL", default=KEYMANAGER_API_BASE_URL)
     keymanager_api_timeout = fields.Integer("Keymanager API Timeout", default=10)
