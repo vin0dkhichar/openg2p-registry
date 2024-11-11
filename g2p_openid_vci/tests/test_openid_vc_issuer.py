@@ -1,6 +1,6 @@
 import base64
 import os
-from datetime import datetime, timezone
+from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 import requests
@@ -67,7 +67,7 @@ class TestVCIIssuerRegistry(TransactionCase):
                 "iss": "http://openg2p.local/auth",
                 "aud": "http://openg2p.local/api/v1/vci/credential",
                 "sub": self.registrant_national_id,
-                "exp": int(datetime.now(timezone.utc).timestamp()) + 5 * 60,
+                "exp": int(datetime.now().timestamp()) + 5 * 60,
             },
             self.jwk,
             algorithm="RS256",
@@ -144,7 +144,7 @@ class TestVCIIssuerRegistry(TransactionCase):
                         "iss": "http://openg2p.local/auth",
                         "aud": "http://openg2p.local/api/v1/vci/credential",
                         "sub": self.registrant_national_id,
-                        "exp": int(datetime.now(timezone.utc).timestamp()) + 5 * 60,
+                        "exp": int(datetime.now().timestamp()) + 5 * 60,
                     },
                     self.jwk,
                     algorithm="RS256",
@@ -164,7 +164,7 @@ class TestVCIIssuerRegistry(TransactionCase):
                         "iss": "http://openg2p.local/auth",
                         "aud": "http://openg2p.local/api/v1/vci/credential",
                         "sub": "random-value",
-                        "exp": int(datetime.now(timezone.utc).timestamp()) + 5 * 60,
+                        "exp": int(datetime.now().timestamp()) + 5 * 60,
                     },
                     self.jwk,
                     algorithm="RS256",
@@ -187,7 +187,7 @@ class TestVCIIssuerRegistry(TransactionCase):
                         "iss": "http://openg2p.local/auth",
                         "aud": ["http://random.url/credential"],
                         "sub": self.registrant_national_id,
-                        "exp": int(datetime.now(timezone.utc).timestamp()) + 5 * 60,
+                        "exp": int(datetime.now().timestamp()) + 5 * 60,
                     },
                     self.jwk,
                     algorithm="RS256",
@@ -207,7 +207,7 @@ class TestVCIIssuerRegistry(TransactionCase):
                         "iss": "http://openg2p.local/auth",
                         "aud": "http://openg2p.local/api/v1/vci/credential",
                         "sub": self.registrant_national_id,
-                        "exp": int(datetime.now(timezone.utc).timestamp()) - 5 * 60,
+                        "exp": int(datetime.now().timestamp()) - 5 * 60,
                     },
                     self.jwk,
                     algorithm="RS256",

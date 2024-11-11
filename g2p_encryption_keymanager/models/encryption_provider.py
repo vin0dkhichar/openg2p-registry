@@ -261,7 +261,7 @@ class KeymanagerEncryptionProvider(models.Model):
         if (
             self.keymanager_access_token
             and self.keymanager_access_token_expiry
-            and self.keymanager_access_token_expiry > datetime.now(timezone.utc)
+            and self.keymanager_access_token_expiry > datetime.now()
         ):
             return self.keymanager_access_token
         data = {

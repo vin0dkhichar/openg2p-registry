@@ -3,7 +3,7 @@ import hashlib
 import json
 import logging
 import secrets
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from urllib.request import urlopen
 
 import requests
@@ -209,8 +209,8 @@ class AuthOauthProvider(models.Model):
                 "iss": self.client_id,
                 "sub": self.client_id,
                 "aud": self.jwt_assertion_aud or self.token_endpoint,
-                "exp": datetime.now(timezone.utc) + timedelta(hours=1),
-                "iat": datetime.now(timezone.utc),
+                "exp": datetime.now() + timedelta(hours=1),
+                "iat": datetime.now(),
             },
             secret,
             algorithm="RS256",
