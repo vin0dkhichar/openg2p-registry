@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from unittest.mock import patch
 
 from odoo.tests import tagged
@@ -21,7 +21,7 @@ class TestVCIAPITestCase(HttpCase):
                 "id": "1234",
                 "type": ["VerifiableCredential", "OpenG2PTestVerifiableCredential"],
                 "issuer": "did:example:test12345678abcdefgh",
-                "issuanceDate": f'{datetime.now(timezone.utc).isoformat(timespec = "milliseconds")}Z',
+                "issuanceDate": f'{datetime.now().isoformat(timespec = "milliseconds")}Z',
                 "credentialSubject": {
                     "vcVer": "VC-V1",
                     "id": "http://openg2p.local/individual/1",

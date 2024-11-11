@@ -1,6 +1,6 @@
 import json
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
 import jq
 import requests
@@ -161,7 +161,7 @@ class MTSConnector(models.Model):
         _logger.info("Being called everytime. Id: " + str(_id))
         current_conf: MTSConnector = self.env["mts.connector"].browse(_id)
         # execute here
-        dt_now = datetime.now(timezone.utc)
+        dt_now = datetime.now()
         mts_request = {
             "id": "string",
             "version": "string",
