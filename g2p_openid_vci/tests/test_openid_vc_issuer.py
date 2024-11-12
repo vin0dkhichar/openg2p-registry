@@ -112,7 +112,7 @@ class TestVCIIssuerRegistry(TransactionCase):
         self.assertTrue(not cred_subject["phone"])
         self.assertTrue(not cred_subject["addressLine1"])
         self.assertTrue(not cred_subject["postalCode"])
-        self.assertEqual("123456789", cred_subject["UIN"])
+        self.assertEqual("54321987", cred_subject["UIN"])
         self.assertEqual(f"data:image/png;base64,{self.registrant_face_bytes.decode()}", cred_subject["face"])
         self.assertEqual("ldp_vc", res["format"])
 
