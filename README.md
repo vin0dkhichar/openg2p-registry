@@ -37,6 +37,7 @@ addon | version | maintainers | summary
 [g2p_odk_importer](g2p_odk_importer/) | 17.0.1.4.0 |  | Import records from ODK
 [g2p_odk_user_mapping](g2p_odk_user_mapping/) | 17.0.1.4.0 |  | ODK App User Mapping
 [g2p_openid_vci](g2p_openid_vci/) | 17.0.1.4.0 |  | G2P OpenID VCI: Base
+[g2p_openid_vci_group](g2p_openid_vci_group/) | 17.0.1.4.0 |  | G2P OpenID VCI: Group
 [g2p_openid_vci_rest_api](g2p_openid_vci_rest_api/) | 17.0.1.4.0 |  | G2P OpenID VCI: Rest API
 [g2p_portal_auth](g2p_portal_auth/) | 17.0.1.4.0 |  | G2P Portal Auth
 [g2p_profile_image](g2p_profile_image/) | 17.0.1.4.0 |  | OpenG2P Profile Image
