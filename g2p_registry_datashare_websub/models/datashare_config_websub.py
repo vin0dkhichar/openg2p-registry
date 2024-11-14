@@ -1,6 +1,7 @@
 import logging
 import os
 from datetime import datetime, timedelta
+from urllib.parse import parse_qs
 
 import jq
 import requests
@@ -14,7 +15,7 @@ _logger = logging.getLogger(__name__)
 WEBSUB_BASE_URL = os.getenv("WEBSUB_BASE_URL", "http://websub/hub")
 WEBSUB_AUTH_URL = os.getenv(
     "WEBSUB_AUTH_URL",
-    "http://keycloak.keycloak/realms/openg2p/protocol/openid-connect/token",
+    "http://keycloak.keycloak/realms/master/protocol/openid-connect/token",
 )
 WEBSUB_AUTH_CLIENT_ID = os.getenv("WEBSUB_AUTH_CLIENT_ID", "openg2p-admin-client")
 WEBSUB_AUTH_CLIENT_SECRET = os.getenv("WEBSUB_AUTH_CLIENT_SECRET", "")
@@ -27,7 +28,7 @@ class G2PDatashareConfigWebsub(models.Model):
 
     name = fields.Char(required=True)
 
-    partner_id = fields.Char(string="Partner ID", required=True)
+    partner_id = fields.Char(string="Partner ID")
 
     event_type = fields.Selection(
         [
@@ -72,11 +73,14 @@ class G2PDatashareConfigWebsub(models.Model):
         return res
 
     def write(self, vals):
-        if isinstance(vals, dict) and "event_type" in vals:
-            for rec in self:
-                rec.deregister_websub_event()
+        try:
+            if isinstance(vals, dict) and ("event_type" in vals or "partner_id" in vals):
+                for rec in self:
+                    rec.deregister_websub_event()
+        except Exception:
+            _logger.exception("WebSub - Changed event: couldnt deregister")
         res = super().write(vals)
-        if isinstance(vals, dict) and "event_type" in vals:
+        if isinstance(vals, dict) and ("event_type" in vals or "partner_id" in vals):
             for rec in self:
                 rec.register_websub_event()
         return res
@@ -102,21 +106,22 @@ class G2PDatashareConfigWebsub(models.Model):
         record_id = data["id"]
         record = self.env["res.partner"].browse(record_id)
         record_data = self.get_full_record_data(record)
-        record_data = {"data": data, "record_data": record_data}
+        record_data = WebSubJSONEncoder.python_dict_to_json_dict(
+            {
+                "web_base_url": web_base_url,
+                "publisher": self.read()[0],
+                "curr_datetime": curr_datetime,
+                "data": data,
+                "record_data": record_data,
+            },
+        )
 
         if not jq.first(self.condition_jq, record_data):
             return
 
         data_transformed = jq.first(
             self.transform_data_jq,
-            WebSubJSONEncoder.python_dict_to_json_dict(
-                {
-                    "web_base_url": web_base_url,
-                    "publisher": self.read()[0],
-                    "curr_datetime": curr_datetime,
-                    **record_data,
-                },
-            ),
+            record_data,
         )
         self.publish_event_websub(data_transformed)
 
@@ -127,7 +132,11 @@ class G2PDatashareConfigWebsub(models.Model):
             self.websub_base_url,
             params={
                 "hub.mode": "publish",
-                "hub.topic": f"{self.partner_id}{self.topic_joiner}{self.event_type}",
+                "hub.topic": (
+                    f"{self.partner_id}"
+                    f"{self.topic_joiner if self.partner_id else ''}"
+                    f"{self.event_type}"
+                ),
             },
             headers={"Authorization": f"Bearer {token}"},
             json=data,
@@ -135,6 +144,9 @@ class G2PDatashareConfigWebsub(models.Model):
         )
         res.raise_for_status()
         _logger.info("WebSub Publish Success. Response: %s. Headers: %s", res.text, res.headers)
+        res = parse_qs(res.text)
+        if not len(res.get("hub.mode", [])) or res["hub.mode"][0].lower() != "accepted":
+            raise ValueError("WebSub Publish: Invalid hub response")
 
     def register_websub_event(self, mode="register"):
         self.ensure_one()
@@ -142,7 +154,14 @@ class G2PDatashareConfigWebsub(models.Model):
         res = requests.post(
             self.websub_base_url,
             headers={"Authorization": f"Bearer {token}"},
-            data={"hub.mode": mode, "hub.topic": self.event_type},
+            data={
+                "hub.mode": mode,
+                "hub.topic": (
+                    f"{self.partner_id}"
+                    f"{self.topic_joiner if self.partner_id else ''}"
+                    f"{self.event_type}"
+                ),
+            },
             timeout=self.websub_api_timeout,
         )
         res.raise_for_status()
@@ -151,6 +170,9 @@ class G2PDatashareConfigWebsub(models.Model):
             res.text,
             res.headers,
         )
+        res = parse_qs(res.text)
+        if not len(res.get("hub.mode", [])) or res["hub.mode"][0].lower() != "accepted":
+            raise ValueError("WebSub Topic Register: Invalid hub response")
 
     def deregister_websub_event(self):
         return self.register_websub_event(mode="deregister")
