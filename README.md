@@ -45,6 +45,7 @@ addon | version | maintainers | summary
 [g2p_registry_addl_info](g2p_registry_addl_info/) | 17.0.1.4.0 |  | G2P Registry: Additional Info
 [g2p_registry_addl_info_rest_api](g2p_registry_addl_info_rest_api/) | 17.0.1.4.0 |  | G2P Registry: Additional Info REST API
 [g2p_registry_base](g2p_registry_base/) | 17.0.1.4.0 |  | G2P Registry: Base
+[g2p_registry_datashare_websub](g2p_registry_datashare_websub/) | 17.0.1.4.0 |  | G2P Registry Datashare: WebSub
 [g2p_registry_documents](g2p_registry_documents/) | 17.0.1.4.0 |  | G2P Registry: Documents
 [g2p_registry_encryption](g2p_registry_encryption/) | 17.0.1.4.0 |  | G2P Registry: Encryption
 [g2p_registry_group](g2p_registry_group/) | 17.0.1.4.0 |  | G2P Registry: Groups
