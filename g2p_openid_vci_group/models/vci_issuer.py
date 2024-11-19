@@ -42,6 +42,7 @@ class OpenIDVCIssuerGroup(models.Model):
             raise ValueError("ID not found in DB. Invalid Subject Received in auth claims")
 
         head_kind = self.env.ref("g2p_registry_membership.group_membership_kind_head")
+        # Searches for the first group which in the individual is a HEAD.
         individual_group_membership = (
             self.env["g2p.group.membership"]
             .sudo()
