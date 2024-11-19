@@ -32,7 +32,7 @@ class G2PIndividual(models.Model):
         if not self.is_group:
             name_vals = [
                 f"{self.family_name},"
-                if self.family_name and self.given_name
+                if self.family_name and (self.given_name or self.addl_name)
                 else f"{self.family_name}"
                 if self.family_name
                 else "",
