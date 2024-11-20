@@ -13,7 +13,7 @@
                             <field name="slug" string="Name" />
                             <field name="file_size" />
                             <field name="file_type" />
-                            <widget name="action_preview" />
+                            <widget name="action_preview_registy" />
                         </tree>
                     </field>
                 </page>
@@ -34,7 +34,7 @@
                             <field name="slug" string="Name" />
                             <field name="file_size" />
                             <field name="file_type" />
-                            <widget name="action_preview" />
+                            <widget name="action_preview_registry" />
                         </tree>
                     </field>
                 </page>

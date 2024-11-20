@@ -63,4 +63,4 @@ class Widgetpreview extends Component {
     }
 }
 
-registry.category("view_widgets").add("action_preview", {component: Widgetpreview});
+registry.category("view_widgets").add("action_preview_registry", {component: Widgetpreview});
