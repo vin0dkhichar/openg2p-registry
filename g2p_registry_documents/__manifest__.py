@@ -16,11 +16,7 @@
     "data": [
         "views/registrant_document_views.xml",
     ],
-    "assets": {
-        "web.assets_backend": [
-            "g2p_registry_documents/static/src/js/preview_document.js",
-        ],
-    },
+    "assets": {},
     "demo": [],
     "images": [],
     "application": True,

@@ -21,7 +21,11 @@
         "data/storage_backend.xml",
     ],
     "external_dependencies": {"python": ["boto3<=1.15.18", "python_slugify"]},
-    "assets": {},
+    "assets": {
+        "web.assets_backend": [
+            "g2p_documents/static/src/js/preview_document.js",
+        ],
+    },
     "demo": [],
     "images": [],
     "application": True,

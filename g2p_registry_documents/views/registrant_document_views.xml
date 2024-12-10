@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-   <record id="view_registrant_documents_form_individual" model="ir.ui.view">
+    <record id="view_registrant_documents_form_individual" model="ir.ui.view">
         <field name="name">view_registrant_documents_form_individual</field>
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="g2p_registry_individual.view_individuals_form" />
@@ -13,7 +13,8 @@
                             <field name="slug" string="Name" />
                             <field name="file_size" />
                             <field name="file_type" />
-                            <widget name="action_preview_registry" />
+                            <!-- Widget provided by g2p_documents module for document preview and viewing -->
+                            <widget name="action_preview" />
                         </tree>
                     </field>
                 </page>
@@ -34,7 +35,8 @@
                             <field name="slug" string="Name" />
                             <field name="file_size" />
                             <field name="file_type" />
-                            <widget name="action_preview_registry" />
+                            <!-- Widget provided by g2p_documents module for document preview and viewing -->
+                            <widget name="action_preview" />
                         </tree>
                     </field>
                 </page>
