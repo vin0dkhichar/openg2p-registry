@@ -18,9 +18,8 @@ class ResPartner(models.Model):
 
     @api.onchange("odk_config_id")
     def _onchange_odk_config_id(self):
-        self.odk_app_user = [
-            5,
-        ]
+        self.odk_app_user = []
+        app_users = []
         if self.odk_config_id:
             base_url = self.odk_config_id.base_url
             project_id = self.odk_config_id.project
