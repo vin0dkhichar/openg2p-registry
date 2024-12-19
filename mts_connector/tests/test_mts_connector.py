@@ -36,6 +36,7 @@ class TestMTSConnector(TransactionCase):
         )
 
     def test_constraints(self):
+        # Test all constrain methods
         future_time = datetime.now() + timedelta(days=1)
         past_time = datetime.now() - timedelta(days=1)
 
@@ -77,12 +78,14 @@ class TestMTSConnector(TransactionCase):
         self.assertFalse(self.connector.cron_id)
 
     def test_custom_input(self):
+        # Test mts_onetime_action
         self.connector.write({"input_type": "custom"})
         self.connector.mts_onetime_action(self.connector.id)
         self.assertEqual(self.connector.input_type, "custom")
         self.assertEqual(self.connector.job_status, "completed")
 
     def test_datetime_to_iso(self):
+        # Test iso to datetime conversion
         dt = datetime(2024, 1, 1, 12, 0, 0, 123456)
         iso_str = self.connector.datetime_to_iso(dt)
         self.assertEqual(iso_str, "2024-01-01T12:00:00.123Z")

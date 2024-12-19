@@ -42,6 +42,7 @@ class TestG2PMTSConnector(TransactionCase):
         )
 
     def test_json_field_constraints(self):
+        # Test constrains_g2p_mts_json_fields
         with self.assertRaises(ValidationError):
             self.connector.write({"g2p_search_domain": "invalid json"})
 
@@ -54,6 +55,7 @@ class TestG2PMTSConnector(TransactionCase):
 
     @patch("odoo.addons.g2p_mts.models.g2p_mts_connector.requests.post")
     def test_custom_single_action(self, mock_post):
+        # Test custom_single_action method
         mock_post.return_value.text = "success"
 
         mts_request = {"request": {}}
@@ -67,6 +69,7 @@ class TestG2PMTSConnector(TransactionCase):
         self.assertEqual(self.connector.job_status, "completed")
 
     def test_delete_vids_if_token(self):
+        # Test video deletion when UIN token exists
         self.registrant.write({"reg_ids": [(0, 0, {"id_type": self.uin_type.id, "value": "UIN123456"})]})
 
         self.env["ir.config_parameter"].sudo().set_param(
@@ -83,6 +86,7 @@ class TestG2PMTSConnector(TransactionCase):
         )
 
     def test_read_record_list(self):
+        # Test reading record list from record set
         record_set = self.env["res.partner"].search([("id", "=", self.registrant.id)])
         field_list = ["name", "id"]
 
@@ -94,6 +98,7 @@ class TestG2PMTSConnector(TransactionCase):
         self.assertEqual(result[0]["name"], self.registrant.name)
 
     def test_record_set_json_serialize(self):
+        # Test record_set_json_serialize with datetime object
         test_date = date(2024, 1, 1)
         serialized_date = self.connector.record_set_json_serialize(test_date)
         self.assertEqual(serialized_date, "2024/01/01")

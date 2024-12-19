@@ -18,6 +18,7 @@ class TestG2PRegistrant(TransactionCase):
         )
 
     def test_create_partner_with_eid(self):
+        # Test partner creation with eid
         partner = self.env["res.partner"].create(
             {
                 "name": "Test Partner",
@@ -28,6 +29,7 @@ class TestG2PRegistrant(TransactionCase):
         self.assertEqual(partner.eid, "TEST123")
 
     def test_create_partner_generate_eid(self):
+        # Test eid generation for supplier partner creation
         partner = self.env["res.partner"].create(
             {
                 "name": "Test Supplier",
@@ -38,6 +40,7 @@ class TestG2PRegistrant(TransactionCase):
         self.assertNotEqual(partner.eid, False)
 
     def test_create_partner_no_eid_generation(self):
+        # Test eid for non supplier partner creation
         partner = self.env["res.partner"].create(
             {
                 "name": "Test Customer",
@@ -47,6 +50,7 @@ class TestG2PRegistrant(TransactionCase):
         self.assertEqual(partner.eid, "New")
 
     def test_enumerator_fields(self):
+        # Test enumerator field on partner creation
         partner = self.env["res.partner"].create(
             {
                 "name": "Test Partner",
@@ -57,7 +61,8 @@ class TestG2PRegistrant(TransactionCase):
         self.assertEqual(partner.enumerator_user_id, "TEST001")
         self.assertEqual(partner.data_collection_date, datetime.date(2024, 1, 1))
 
-    def test_05_compute_creator_eid_no_creator(self):
+    def test_compute_creator_eid_no_creator(self):
+        # Test creator_eid computation
         partner = self.env["res.partner"].create(
             {
                 "name": "Test Partner",
@@ -70,6 +75,7 @@ class TestG2PRegistrant(TransactionCase):
         self.assertFalse(partner.creator_eid)
 
     def test_generate_eid(self):
+        # Test generate eid method
         partner = self.env["res.partner"].create(
             {
                 "name": "Test Partner",
