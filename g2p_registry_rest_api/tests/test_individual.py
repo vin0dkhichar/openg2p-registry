@@ -141,6 +141,31 @@ class TestIndividualRouter(TransactionCase):
 
     @patch("odoo.addons.fastapi.dependencies.authenticated_partner_env")
     @patch("odoo.api.Environment")
+    def test_get_individual_ids_exception(self, mock_env, mock_authenticated_partner_env):
+        # Test get_individual_ids method with exception while fetching partner
+
+        ssn_id_type = MagicMock()
+        ssn_id_type.name = "SSN"
+
+        mock_ssn_reg_id = MagicMock()
+        mock_ssn_reg_id.id_type = ssn_id_type
+        mock_ssn_reg_id.value = "123-45-6789"
+        mock_ssn_reg_id.status = "valid"
+
+        mock_individual = MagicMock()
+        mock_individual.reg_ids = [mock_ssn_reg_id]
+
+        mock_env.return_value["res.partner"].sudo().search.side_effect = Exception("TEST_EXCEPTION")
+
+        with self.assertRaises(G2PApiValidationError) as context:
+            asyncio.run(
+                get_individual_ids(env=mock_env.return_value, include_id_type="SSN", exclude_id_type="DL")
+            )
+
+        self.assertEqual(context.exception.error_message, "An error occurred while getting IDs.")
+
+    @patch("odoo.addons.fastapi.dependencies.authenticated_partner_env")
+    @patch("odoo.api.Environment")
     def test_get_individual_ids_missing_include_type(self, mock_env, mock_authenticated_partner_env):
         # Test get_individual_ids method with missing individual
         with self.assertRaises(G2PApiValidationError) as context:
@@ -202,3 +227,98 @@ class TestIndividualRouter(TransactionCase):
             asyncio.run(update_individual(requests=[mock_request], env=mock_env.return_value, id_type="SSN"))
 
         self.assertEqual(context.exception.error_message, "ID is required for update individual")
+
+    @patch("odoo.addons.fastapi.dependencies.authenticated_partner_env")
+    @patch("odoo.api.Environment")
+    def test_update_individual_with_matching_reg_ids(self, mock_env, mock_authenticated_partner_env):
+        # Test update_individual when there are matching registration ids to update
+        mock_request = MagicMock(spec=UpdateIndividualInfoRequest)
+        mock_request.updateId = "123-45-6789"
+        mock_request.name = "Updated Individual"
+
+        mock_id_type = MagicMock()
+        mock_id_type.id = 1
+        mock_id_type.name = "SSN"
+
+        mock_reg_id = MagicMock()
+        mock_reg_id.id = 100
+        mock_reg_id.id_type = mock_id_type
+        mock_reg_id.value = "123-45-6789"
+        mock_reg_id.status = "valid"
+
+        mock_recordset = MagicMock()
+        mock_recordset.filtered = MagicMock(return_value=mock_reg_id)
+
+        mock_individual = MagicMock()
+        mock_individual.id = 1
+        mock_individual.name = "Updated Individual"
+        mock_individual.reg_ids = mock_recordset
+
+        mock_reg_ids = [(0, 0, {"id_type": 1, "value": "123-45-6789", "status": "valid"})]
+        mock_processed = {"name": "Updated Individual", "reg_ids": mock_reg_ids}
+        mock_env.return_value[
+            "process_individual.rest.mixin"
+        ]._process_individual.return_value = mock_processed
+
+        mock_env.return_value["res.partner"].sudo().search.return_value = mock_individual
+
+        with patch("pydantic.BaseModel.model_validate", return_value=mock_individual):
+            result = asyncio.run(
+                update_individual(requests=[mock_request], env=mock_env.return_value, id_type="SSN")
+            )
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0].name, "Updated Individual")
+
+        expected_reg_ids = [(1, 100, {"id_type": 1, "value": "123-45-6789", "status": "valid"})]
+        mock_individual.write.assert_called_once()
+        actual_write_args = mock_individual.write.call_args[0][0]
+        self.assertEqual(actual_write_args["reg_ids"][0][0], expected_reg_ids[0][0])
+        self.assertEqual(actual_write_args["reg_ids"][0][1], expected_reg_ids[0][1])
+        self.assertEqual(actual_write_args["reg_ids"][0][2], expected_reg_ids[0][2])
+
+    @patch("odoo.addons.fastapi.dependencies.authenticated_partner_env")
+    @patch("odoo.api.Environment")
+    def test_update_individual_with_non_matching_reg_ids(self, mock_env, mock_authenticated_partner_env):
+        # Test update_individual when there are no matching registration ids
+        mock_request = MagicMock(spec=UpdateIndividualInfoRequest)
+        mock_request.updateId = "123-45-6789"
+        mock_request.name = "Updated Individual"
+
+        mock_id_type = MagicMock()
+        mock_id_type.id = 2
+        mock_id_type.name = "DL"
+
+        mock_reg_id = MagicMock()
+        mock_reg_id.id = 100
+        mock_reg_id.id_type = mock_id_type
+        mock_reg_id.value = "DL123456"
+        mock_reg_id.status = "valid"
+
+        mock_recordset = MagicMock()
+        mock_recordset.filtered = MagicMock(return_value=False)
+
+        mock_individual = MagicMock()
+        mock_individual.id = 1
+        mock_individual.name = "Updated Individual"
+        mock_individual.reg_ids = mock_recordset
+
+        mock_reg_ids = [(0, 0, {"id_type": 1, "value": "123-45-6789", "status": "valid"})]
+        mock_processed = {"name": "Updated Individual", "reg_ids": mock_reg_ids}
+        mock_env.return_value[
+            "process_individual.rest.mixin"
+        ]._process_individual.return_value = mock_processed
+
+        mock_env.return_value["res.partner"].sudo().search.return_value = mock_individual
+
+        with patch("pydantic.BaseModel.model_validate", return_value=mock_individual):
+            result = asyncio.run(
+                update_individual(requests=[mock_request], env=mock_env.return_value, id_type="SSN")
+            )
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0].name, "Updated Individual")
+
+        mock_individual.write.assert_called_once()
+        actual_write_args = mock_individual.write.call_args[0][0]
+        self.assertEqual(actual_write_args["reg_ids"][0], mock_reg_ids[0])
