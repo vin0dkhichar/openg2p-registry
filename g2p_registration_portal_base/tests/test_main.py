@@ -232,3 +232,59 @@ class TestG2PregistrationPortalBase(HttpCase):
 
         updated_individual = self.env["res.partner"].browse(individual.id)
         self.assertFalse(updated_individual.birthdate)
+
+    @mute_logger("odoo.http")
+    def test_group_create_submit_invalid_group(self):
+        # Test group creation with invalid group_id
+        self.authenticate("test_user", "test_user")
+
+        response = self.url_open(
+            "/portal/registration/group/create/submit",
+            data={
+                "group_id": 999999,  # Non-existent ID
+                "name": "Test Group",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("g2p_registration_portal_base.error_template", response.text)
+
+    def test_group_create_submit_invalid_field(self):
+        # Test group creation with invalid field
+        self.authenticate("test_user", "test_user")
+
+        response = self.url_open(
+            "/portal/registration/group/create/submit", data={"name": "Test Group", "invalid_field": "value"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.url.endswith("/portal/registration/group"))
+
+    def test_group_submit_invalid_group(self):
+        # Test group submission with invalid group_id
+        self.authenticate("test_user", "test_user")
+
+        response = self.url_open("/portal/registration/group/update/submit/", data={"group_id": 999999})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("g2p_registration_portal_base.group_list", response.text)
+
+    @mute_logger("odoo.http")
+    def test_update_member_invalid_id(self):
+        # Test member update with invalid member_id
+        self.authenticate("test_user", "test_user")
+
+        response = self.url_open("/portal/registration/member/update/", data={"member_id": 777777})
+
+        self.assertEqual(response.status_code, 200)
+
+    @mute_logger("odoo.http")
+    def test_update_member_submit_invalid_id(self):
+        # Test member update submission with invalid member_id
+        self.authenticate("test_user", "test_user")
+
+        response = self.url_open("/portal/registration/member/update/submit/", data={"member_id": 999999})
+
+        self.assertEqual(response.status_code, 200)
+        result = json.loads(response.content)
+        self.assertEqual(result, {"error": "Failed to update member details"})
