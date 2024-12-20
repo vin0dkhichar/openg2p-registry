@@ -12,6 +12,9 @@ from odoo.tests import TransactionCase
 
 class TestKeymanagerEncryptionProvider(TransactionCase):
     def setUp(self):
+        """
+        Setup the test environment, including the encryption provider and a test RSA key pair.
+        """
         super().setUp()
         self.provider = self.env["g2p.encryption.provider"].create(
             {
@@ -26,9 +29,11 @@ class TestKeymanagerEncryptionProvider(TransactionCase):
             }
         )
 
+        # Generate a private key and corresponding certificate for tests
         self.private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
         self.cert = self._generate_test_certificate()
 
+        # Mock the method for fetching access tokens
         patcher = patch(
             "odoo.addons.g2p_encryption_keymanager.models.encryption_provider.KeymanagerEncryptionProvider.km_get_access_token",
             return_value="test_token",
@@ -37,6 +42,9 @@ class TestKeymanagerEncryptionProvider(TransactionCase):
         self.addCleanup(patcher.stop)
 
     def _generate_test_certificate(self):
+        """
+        Generate a self-signed test certificate for use in testing.
+        """
         subject = issuer = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "Test Certificate")])
 
         cert = (
@@ -54,6 +62,9 @@ class TestKeymanagerEncryptionProvider(TransactionCase):
 
     @patch("requests.post")
     def test_encrypt_data(self, mock_post):
+        """
+        Test the encryption of data using the Keymanager encryption provider.
+        """
         test_data = b"test data"
         encrypted_data = b"encrypted data"
         mock_response = Mock()
@@ -71,6 +82,9 @@ class TestKeymanagerEncryptionProvider(TransactionCase):
 
     @patch("requests.post")
     def test_decrypt_data(self, mock_post):
+        """
+        Test the decryption of data using the Keymanager encryption provider.
+        """
         encrypted_data = b"encrypted data"
         decrypted_data = b"test data"
         mock_response = Mock()
@@ -88,6 +102,9 @@ class TestKeymanagerEncryptionProvider(TransactionCase):
 
     @patch("requests.post")
     def test_jwt_sign(self, mock_post):
+        """
+        Test the signing of JWT data using the Keymanager encryption provider.
+        """
         test_data = {"test": "data"}
         signed_jwt = "signed.jwt.token"
         mock_response = Mock()
@@ -103,6 +120,9 @@ class TestKeymanagerEncryptionProvider(TransactionCase):
 
     @patch("requests.post")
     def test_jwt_verify(self, mock_post):
+        """
+        Test the verification of a JWT token using the Keymanager encryption provider.
+        """
         jwt_token = "test.jwt.token"
         mock_response = Mock()
         mock_response.json.return_value = {"response": {"signatureValid": True}}
@@ -118,6 +138,9 @@ class TestKeymanagerEncryptionProvider(TransactionCase):
 
     @patch("requests.get")
     def test_get_jwks(self, mock_get):
+        """
+        Test the retrieval of JWKS keys from the Keymanager encryption provider.
+        """
         mock_response = Mock()
         mock_response.json.return_value = {
             "response": {
@@ -139,6 +162,9 @@ class TestKeymanagerEncryptionProvider(TransactionCase):
         assert result["keys"][0]["kid"] == "test_key_id"
 
     def test_url_safe_b64_encode_decode(self):
+        """
+        Test the encoding and decoding of data using URL-safe base64.
+        """
         test_data = b"test data with special chars !@#$%^&*()"
 
         encoded = self.provider.km_urlsafe_b64encode(test_data)
