@@ -16,7 +16,7 @@ from odoo.addons.g2p_auth_oidc.models.auth_oauth_provider import AuthOauthProvid
 _logger = logging.getLogger(__name__)
 
 
-class TestAuthOauthProviderbase(TransactionCase):
+class TestAuthOauthProvider(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -62,14 +62,7 @@ class TestAuthOauthProviderbase(TransactionCase):
 
         cls.client_private_key = base64.b64encode(b"mock_private_key").decode("ascii")
 
-    def setUp(self):
-        # Avoid calling super().setUp() as it's already called in the base class.
-        # The `if False:` condition is used here to satisfy pre-commit checks
-        # without actually calling super().setUp().
-        if False:  # Pre-commit hook requires a super() call, but we don't need it here.
-            super().setUp()  # Call it only if needed (this is disabled).
-
-        self.params = {
+        cls.params = {
             "access_token": "test_access_token",
             "id_token": "test_id_token",
             "code": "test_code",
@@ -181,10 +174,8 @@ class TestAuthOauthProviderbase(TransactionCase):
         # Verify the method returns the mocked encoded JWT
         self.assertEqual(token, "mock_encoded_jwt")
 
-    @patch("requests.post")
-    @patch("jose.jwt.encode")
+    @patch("requests.get")
     @patch("jose.jwt.decode")
-    @patch("base64.b64decode")
     @patch.object(
         AuthOauthProvider,
         "_oidc_get_tokens_auth_code_flow",
@@ -196,19 +187,22 @@ class TestAuthOauthProviderbase(TransactionCase):
         return_value=("test_access_token", "test_id_token"),
     )
     @patch.object(AuthOauthProvider, "oidc_create_private_key_jwt", return_value=("mock_token"))
-    @patch.object(AuthOauthProvider, "verify_access_token", return_value=("mock_token_01"))
+    @patch.object(AuthOauthProvider, "verify_access_token")
+    @patch.object(AuthOauthProvider, "verify_id_token")
     def test_oidc_get_tokens_success(
         self,
+        mock_verify_id_token,
+        mock_verify_access_token,
+        mock_create_private,
         mock_implicit_flow,
         mock_auth_code_flow,
-        mock_create_private,
-        mock_post,
-        mock_b64decode,
-        mock_jwt_encode,
         mock_jwt_decode,
-        mock_access_token02,
+        mock_get,
     ):
         """Test successful token retrieval for oidc_auth_code flow"""
+        # Mock the JWKS response
+        mock_get.return_value = MagicMock()
+        mock_get.return_value.json.return_value = {"keys": [{"kid": "test-key", "kty": "RSA"}]}
 
         # Test with OIDC Authorization Code Flow
         self.provider.flow = "oidc_auth_code"
@@ -671,3 +665,214 @@ class TestAuthOauthProviderbase(TransactionCase):
         self.assertIn("birthdate", result)
         self.assertIn("phone", result)
         self.assertIn("picture", result)  # Picture URL should remain in the validation dict
+
+    @patch.object(AuthOauthProvider, "oidc_signin_generate_user_values")
+    def test_oidc_signin_update_userinfo(self, mock_generate_values):
+        """Test user info update functionality"""
+        # Create a test partner with sudo
+        partner = (
+            self.env["res.partner"]
+            .sudo()
+            .create(
+                {
+                    "name": "Test Partner",
+                    "email": "test@example.com",
+                    "company_id": self.company.id,
+                }
+            )
+        )
+
+        # Create test user with the existing partner
+        user = (
+            self.env["res.users"]
+            .sudo()
+            .with_context(no_reset_password=True, company_id=self.company.id)
+            .create(
+                {
+                    "login": "testuser",
+                    "partner_id": partner.id,
+                    "company_id": self.company.id,
+                    "oidc_userinfo_reset": True,
+                }
+            )
+        )
+
+        # Mock the generate_user_values method
+        mock_generate_values.return_value = {
+            "name": "Updated Name",
+            "email": "updated@example.com",
+            "user_id": "12345",
+        }
+
+        # Test data
+        validation = {
+            "name": "Updated Name",
+            "email": "updated@example.com",
+            "user_id": "12345",
+        }
+
+        # Test update when reset flag is True
+        self.provider.oidc_signin_update_userinfo(validation, {}, oauth_partner=partner, oauth_user=user)
+
+        # Verify mock was called correctly
+        mock_generate_values.assert_called_once_with(
+            validation, {}, oauth_partner=partner, oauth_user=user, create_user=False
+        )
+
+        # Verify partner data was updated
+        self.assertEqual(partner.name, "Updated Name")
+        self.assertEqual(partner.email, "updated@example.com")
+        self.assertFalse(user.oidc_userinfo_reset)
+
+        # Reset mock for next test
+        mock_generate_values.reset_mock()
+
+        # Test update when reset flag is False
+        user.oidc_userinfo_reset = False
+        validation["name"] = "Another Name"
+
+        self.provider.oidc_signin_update_userinfo(validation, {}, oauth_partner=partner, oauth_user=user)
+
+        # Verify mock was not called when reset is False
+        mock_generate_values.assert_not_called()
+
+        # Verify no changes were made.
+        self.assertEqual(partner.name, "Updated Name")
+        self.assertEqual(partner.email, "updated@example.com")
+
+    @patch.object(AuthOauthProvider, "oidc_signin_process_groups")
+    def test_oidc_signin_update_groups(self, mock_process_groups):
+        """Test group update functionality"""
+        # Create partner first with sudo
+        partner = (
+            self.env["res.partner"]
+            .sudo()
+            .create(
+                {
+                    "name": "Test User",
+                    "email": "test@example.com",
+                    "company_id": self.company.id,
+                }
+            )
+        )
+
+        # Create user with the existing partner
+        user = (
+            self.env["res.users"]
+            .sudo()
+            .with_context(no_reset_password=True, company_id=self.company.id)
+            .create(
+                {
+                    "login": "testuser",
+                    "name": "Test User",
+                    "partner_id": partner.id,
+                    "company_id": self.company.id,
+                    "oidc_groups_reset": True,
+                }
+            )
+        )
+
+        # Mock the process_groups method
+        mock_process_groups.return_value = {"groups_id": [(4, self.group1.id), (4, self.group2.id)]}
+
+        # Test data
+        validation = {"groups_id": [(4, self.group1.id), (4, self.group2.id)]}
+
+        # Test update when sync is 'on_login'
+        self.provider.sync_user_groups = "on_login"
+        self.provider.oidc_signin_update_groups(validation, {}, oauth_user=user)
+
+        # Verify mock was called
+        mock_process_groups.assert_called_once_with(validation, {}, oauth_partner=None, oauth_user=user)
+
+        self.assertIn(self.group1, user.groups_id)
+        self.assertIn(self.group2, user.groups_id)
+        self.assertFalse(user.oidc_groups_reset)
+
+        # Reset mock for next test
+        mock_process_groups.reset_mock()
+
+        # Test update when sync is 'on_reset' and reset flag is True
+        user.groups_id = [(5, 0, 0)]  # Remove all groups
+        user.oidc_groups_reset = True
+        self.provider.sync_user_groups = "on_reset"
+
+        self.provider.oidc_signin_update_groups(validation, {}, oauth_user=user)
+
+        # Verify mock was called
+        mock_process_groups.assert_called_once_with(validation, {}, oauth_partner=None, oauth_user=user)
+
+        self.assertIn(self.group1, user.groups_id)
+        self.assertIn(self.group2, user.groups_id)
+        self.assertFalse(user.oidc_groups_reset)
+
+        # Reset mock for next test
+        mock_process_groups.reset_mock()
+
+        # Test update when sync is 'never'
+        user.groups_id = [(5, 0, 0)]  # Remove all groups
+        self.provider.sync_user_groups = "never"
+
+        self.provider.oidc_signin_update_groups(validation, {}, oauth_user=user)
+
+        # Verify mock was not called when sync is 'never'
+        mock_process_groups.assert_not_called()
+
+        self.assertNotIn(self.group1, user.groups_id)
+        self.assertNotIn(self.group2, user.groups_id)
+
+    def test_list_providers(self):
+        """Test that list_providers method works with various parameters"""
+
+        # Test with basic parameters
+        result = self.provider.list_providers(
+            base_url="https://test.example.com", redirect="/web", db_name="test_db"
+        )
+        self.assertEqual(len(result), 1, "Should return one provider")
+
+        # Test with additional keyword arguments
+        result = self.provider.list_providers(
+            base_url="https://test.example.com",
+            redirect="/web",
+            db_name="test_db",
+            prompt="login",  # Additional parameter
+            login_hint="user@example.com",  # Additional parameter
+            custom_param="test_value",  # Custom parameter
+        )
+
+        self.assertTrue(result, "Method should return providers")
+        self.assertEqual(len(result), 1, "Should return one provider")
+
+        provider_oidc_flow = self.env["auth.oauth.provider"].create(
+            {
+                "name": "Test Provider",
+                "client_id": "test_client_id",
+                "client_secret": "test_secret",
+                "body": '{"en_US": "Log in with Test OAuth Provider"}',
+                "auth_endpoint": "https://test.com/auth",
+                "scope": "openid profile email",
+                "validation_endpoint": "https://test.com/userinfo",
+                "token_endpoint": "https://test.com/token",
+                "jwks_uri": "https://test.com/jwks",
+                "flow": "oidc_auth_code",
+                "token_map": "sub:user_id name:name email:email",
+                "company_id": self.company.id,
+                "enable_pkce": True,
+                "code_verifier": "test_code_verifier",
+                "verify_at_hash": True,
+                "date_format": "%Y/%m/%d",
+                "allow_signup": "yes",
+                "signup_default_groups": [(6, 0, [self.group1.id])],
+                "sync_user_groups": "on_login",
+                "extra_authorize_params": '{"extra":"param"}',
+            }
+        )
+        # Test with additional keyword arguments
+        result = provider_oidc_flow.list_providers(
+            base_url="https://test.example.com",
+            redirect="/web",
+            db_name="test_db",
+            prompt="login",  # Additional parameter
+            login_hint="user@example.com",  # Additional parameter
+            custom_param="test_value",  # Custom parameter
+        )
