@@ -13,11 +13,8 @@
                             <field name="slug" string="Name" />
                             <field name="file_size" />
                             <field name="file_type" />
-<<<<<<< HEAD
                             <!-- Widget provided by g2p_documents module for document preview and viewing -->
-=======
                             <field name="is_encrypted" column_invisible="True" />
->>>>>>> be265e900badedca9e945a74b10e72e874668cc6
                             <widget name="action_preview" />
                         </tree>
                     </field>
@@ -39,11 +36,8 @@
                             <field name="slug" string="Name" />
                             <field name="file_size" />
                             <field name="file_type" />
-<<<<<<< HEAD
                             <!-- Widget provided by g2p_documents module for document preview and viewing -->
-=======
                             <field name="is_encrypted" column_invisible="True" />
->>>>>>> be265e900badedca9e945a74b10e72e874668cc6
                             <widget name="action_preview" />
                         </tree>
                     </field>
