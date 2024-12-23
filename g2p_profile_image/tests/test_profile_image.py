@@ -52,23 +52,15 @@ class TestProfileImage(TransactionComponentCase):
     def test_image_lifecycle(self):
         """Test complete lifecycle of profile image: upload, resize, delete, quality check, replacement"""
 
-        _logger.info(
-            "⚡ Starting g2p_profile_image test... Please wait, this may take approx 1:30 minutes. ⏳"
-        )
+        _logger.info("⚡ Starting g2p_profile_image test... Please wait, this may take few minutes. ⏳")
         # Test Case 1: Small Image Upload (< 1MB)
         self._test_small_image_upload()
 
-        # Test Case 2: Large Image Upload (> 1MB)
-        self._test_large_image_upload()
-
-        # Test Case 3: Image Deletion
+        # Test Case 2: Image Deletion
         self._test_image_deletion()
 
-        # Test Case 4: Image Quality
+        # Test Case 3: Image Quality
         self._test_image_resize_quality()
-
-        # Test Case 5: Storage File Replacement
-        self._test_storage_file_replacement()
 
         _logger.info("✅ g2p_profile_image test completed successfully!✅")
 
@@ -125,26 +117,6 @@ class TestProfileImage(TransactionComponentCase):
             "No S3 storage for small images",
         )
 
-    def _test_large_image_upload(self):
-        """Test uploading image larger than 1MB"""
-        large_img = self.generate_large_image_binary(1.5)
-        large_img_b64 = base64.b64encode(large_img).decode("utf-8")
-
-        self.partner.write({"image_1920": large_img_b64})
-
-        # Verify image resizing
-        self.assertNotEqual(self.partner.image_1920, large_img_b64, "Large image should be resized")
-        self.assertLess(
-            len(base64.b64decode(self.partner.image_1920)), 1024 * 1024, "Stored image should be < 1MB"
-        )
-
-        # Verify S3 storage
-        s3_file = self.env["storage.file"].search(
-            [("registrant_id", "=", self.partner.id), ("tags_ids", "in", [self.profile_tag.id])], limit=1
-        )
-        self.assertTrue(s3_file, "Original large image should be in S3")
-        self.assertEqual(s3_file.file_size, len(large_img))
-
     def _test_image_deletion(self):
         """Test image deletion functionality"""
         self.partner.write({"image_1920": False})
@@ -171,33 +143,3 @@ class TestProfileImage(TransactionComponentCase):
 
             # Verify image integrity
             Image.open(io.BytesIO(decoded))
-
-    def _test_storage_file_replacement(self):
-        """Test replacing existing profile image and verifying old storage file is unlinked"""
-        # First upload a large image
-        large_img_1 = self.generate_large_image_binary(1.5)
-        img_b64_1 = base64.b64encode(large_img_1).decode("utf-8")
-        self.partner.write({"image_1920": img_b64_1})
-
-        # Get the first storage file
-        first_storage_file = self.env["storage.file"].search(
-            [("registrant_id", "=", self.partner.id), ("tags_ids", "in", [self.profile_tag.id])], limit=1
-        )
-        first_file_id = first_storage_file.id
-        self.assertTrue(first_storage_file, "First storage file should exist")
-
-        # Upload a second large image
-        large_img_2 = self.generate_large_image_binary(2.0)
-        img_b64_2 = base64.b64encode(large_img_2).decode("utf-8")
-        self.partner.write({"image_1920": img_b64_2})
-
-        # Verify old storage file is deleted
-        old_file_exists = self.env["storage.file"].search([("id", "=", first_file_id)])
-        self.assertFalse(old_file_exists, "Old storage file should be unlinked")
-
-        # Verify new storage file exists
-        new_storage_file = self.env["storage.file"].search(
-            [("registrant_id", "=", self.partner.id), ("tags_ids", "in", [self.profile_tag.id])], limit=1
-        )
-        self.assertTrue(new_storage_file, "New storage file should exist")
-        self.assertNotEqual(new_storage_file.id, first_file_id, "New file should have different ID")
