@@ -72,12 +72,14 @@ msgstr ""
 #. module: g2p_odk_importer
 #: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_config__create_uid
 #: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_import__create_uid
+#: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_instance_id__create_uid
 msgid "Created by"
 msgstr ""
 
 #. module: g2p_odk_importer
 #: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_config__create_date
 #: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_import__create_date
+#: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_instance_id__create_date
 msgid "Created on"
 msgstr ""
 
@@ -89,12 +91,23 @@ msgstr ""
 #. module: g2p_odk_importer
 #: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_config__display_name
 #: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_import__display_name
+#: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_instance_id__display_name
 msgid "Display Name"
+msgstr ""
+
+#. module: g2p_odk_importer
+#: model:ir.model.fields.selection,name:g2p_odk_importer.selection__odk_instance_id__status__done
+msgid "Done"
 msgstr ""
 
 #. module: g2p_odk_importer
 #: model:ir.model.fields.selection,name:g2p_odk_importer.selection__odk_import__job_status__draft
 msgid "Draft"
+msgstr ""
+
+#. module: g2p_odk_importer
+#: model_terms:ir.ui.view,arch_db:g2p_odk_importer.odk_res_config_settings_view_form
+msgid "Enable Async ODK import"
 msgstr ""
 
 #. module: g2p_odk_importer
@@ -108,8 +121,18 @@ msgid "Enable Odk"
 msgstr ""
 
 #. module: g2p_odk_importer
+#: model:ir.model.fields,field_description:g2p_odk_importer.field_res_config_settings__enable_odk_async
+msgid "Enable Odk Async"
+msgstr ""
+
+#. module: g2p_odk_importer
 #: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_import__end_datetime
 msgid "End Time"
+msgstr ""
+
+#. module: g2p_odk_importer
+#: model:ir.model.fields.selection,name:g2p_odk_importer.selection__odk_instance_id__status__failed
+msgid "Failed"
 msgstr ""
 
 #. module: g2p_odk_importer
@@ -128,13 +151,6 @@ msgid "Form ID"
 msgstr ""
 
 #. module: g2p_odk_importer
-#. odoo-python
-#: code:addons/g2p_odk_importer/models/odk_client.py:0
-#, python-format
-msgid "Future records cannot be fetched before the regular import occurs."
-msgstr ""
-
-#. module: g2p_odk_importer
 #: model:ir.model.fields.selection,name:g2p_odk_importer.selection__odk_import__target_registry__group
 msgid "Group"
 msgstr ""
@@ -142,6 +158,7 @@ msgstr ""
 #. module: g2p_odk_importer
 #: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_config__id
 #: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_import__id
+#: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_instance_id__id
 msgid "ID"
 msgstr ""
 
@@ -166,6 +183,7 @@ msgid "Instance"
 msgstr ""
 
 #. module: g2p_odk_importer
+#: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_instance_id__instance_id
 #: model_terms:ir.ui.view,arch_db:g2p_odk_importer.view_odk_import_form
 msgid "Instance ID"
 msgstr ""
@@ -190,12 +208,14 @@ msgstr ""
 #. module: g2p_odk_importer
 #: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_config__write_uid
 #: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_import__write_uid
+#: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_instance_id__write_uid
 msgid "Last Updated by"
 msgstr ""
 
 #. module: g2p_odk_importer
 #: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_config__write_date
 #: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_import__write_date
+#: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_instance_id__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -230,6 +250,7 @@ msgstr ""
 #. module: g2p_odk_importer
 #: model:ir.actions.act_window,name:g2p_odk_importer.action_odk_import
 #: model:ir.model,name:g2p_odk_importer.model_odk_import
+#: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_instance_id__odk_import_id
 #: model:ir.ui.menu,name:g2p_odk_importer.odk_import_menu
 #: model_terms:ir.ui.view,arch_db:g2p_odk_importer.view_odk_import_form
 msgid "ODK Import"
@@ -246,8 +267,8 @@ msgid "ODK Import Start"
 msgstr ""
 
 #. module: g2p_odk_importer
-#: model_terms:ir.ui.view,arch_db:g2p_odk_importer.odk_res_config_settings_view_form
-msgid "ODK Import by Instance ID"
+#: model:ir.model,name:g2p_odk_importer.model_odk_instance_id
+msgid "ODK Instance ID"
 msgstr ""
 
 #. module: g2p_odk_importer
@@ -256,8 +277,20 @@ msgid "ODK Setting Param"
 msgstr ""
 
 #. module: g2p_odk_importer
+#: model_terms:ir.ui.view,arch_db:g2p_odk_importer.odk_res_config_settings_view_form
+msgid ""
+"Once enabled, the ODK import will be done asynchronously by first fetching "
+"the instance ID from the ODK server"
+msgstr ""
+
+#. module: g2p_odk_importer
 #: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_config__password
 msgid "Password"
+msgstr ""
+
+#. module: g2p_odk_importer
+#: model:ir.model.fields.selection,name:g2p_odk_importer.selection__odk_instance_id__status__pending
+msgid "Pending"
 msgstr ""
 
 #. module: g2p_odk_importer
@@ -281,6 +314,11 @@ msgstr ""
 #: code:addons/g2p_odk_importer/models/odk_import.py:0
 #, python-format
 msgid "Please give the instance ID."
+msgstr ""
+
+#. module: g2p_odk_importer
+#: model:ir.model.fields.selection,name:g2p_odk_importer.selection__odk_instance_id__status__processing
+msgid "Processing"
 msgstr ""
 
 #. module: g2p_odk_importer
@@ -332,6 +370,7 @@ msgstr ""
 
 #. module: g2p_odk_importer
 #: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_import__job_status
+#: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_instance_id__status
 msgid "Status"
 msgstr ""
 
