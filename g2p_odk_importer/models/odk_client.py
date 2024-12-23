@@ -99,7 +99,7 @@ class ODKClient:
         )
         partner_count = 0
         for member in data["value"]:
-            _logger.info("ODK RAW DATA:%s" % member)
+            _logger.debug("ODK RAW DATA:%s" % member)
 
             mapped_json = jq.first(self.json_formatter, member)
             if self.target_registry == "individual":
@@ -358,7 +358,7 @@ class ODKClient:
             _logger.exception("Failed to parse response by using instance ID: %s", e)
             raise ValidationError(f"Failed to parse response by using instance ID: {e}") from e
 
-        _logger.info(f"ODK RAW DATA by instance ID %s {instance_id} {data}")
+        _logger.debug(f"ODK RAW DATA by instance ID %s {instance_id} {data}")
 
         for member in data["value"]:
             mapped_json = jq.first(self.json_formatter, member)
