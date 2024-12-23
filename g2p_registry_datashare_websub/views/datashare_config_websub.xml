@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+   <record id="view_datashare_config_websub_tree" model="ir.ui.view">
+        <field name="name">view_datashare_config_websub_tree</field>
+        <field name="model">g2p.datashare.config.websub</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name" />
+                <field name="partner_id" />
+                <field name="event_type" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_datashare_config_websub_form" model="ir.ui.view">
+        <field name="name">view_datashare_config_websub_form</field>
+        <field name="model">g2p.datashare.config.websub</field>
+        <field name="arch" type="xml">
+            <form>
+                <group name="basic_details">
+                    <field name="name" />
+                    <field name="partner_id" />
+                    <field name="event_type" />
+                    <field name="topic_joiner" />
+                    <field name="transform_data_jq" />
+                    <field name="condition_jq" />
+                </group>
+                <group string="WebSub Details" name="websub_details">
+                    <field name="websub_base_url" />
+                    <field name="websub_auth_url" />
+                    <field name="websub_auth_client_id" />
+                    <field name="websub_auth_client_secret" password="True" />
+                    <field name="websub_auth_grant_type" />
+                    <field name="websub_api_timeout" />
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_datashare_config_websub" model="ir.actions.act_window">
+        <field name="name">WebSub Datashare Configs</field>
+        <field name="res_model">g2p.datashare.config.websub</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help">Manage datashare configs.</field>
+    </record>
+
+    <menuitem
+        id="menu_datashare_config_websub"
+        name="WebSub Datashare Configs"
+        parent="base.menu_administration"
+        sequence="900"
+        action="action_datashare_config_websub"
+    />
+</odoo>
