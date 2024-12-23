@@ -53,7 +53,6 @@ class Widgetpreview extends Component {
             const slugElement = currentRow.querySelector('.o_data_cell[name="slug"]');
             if (slugElement) {
                 const slugValue = slugElement.textContent.trim();
-                console.log("Slug Value:", slugValue);
 
                 let recordID = 0;
                 if (slugValue.includes("-")) {
@@ -78,18 +77,21 @@ class Widgetpreview extends Component {
             kwargs: {},
         });
         const mimetype = result.mimetype;
-
-        const file = {
-            id: recordID,
-            displayName: result.name,
-            downloadUrl: result.url,
-            isViewable: mimetype.includes("image") || mimetype.includes("pdf"),
-            defaultSource: result.url,
-            isImage: mimetype.includes("image"),
-            isPdf: mimetype.includes("pdf"),
-        };
-        if (file.isViewable) {
-            this.fileViewer.open(file);
+        if (typeof mimetype === "string" && mimetype) {
+            const file = {
+                id: recordID,
+                displayName: result.name,
+                downloadUrl: result.url,
+                isViewable: mimetype.includes("image") || mimetype.includes("pdf"),
+                defaultSource: result.url,
+                isImage: mimetype.includes("image"),
+                isPdf: mimetype.includes("pdf"),
+            };
+            if (file.isViewable) {
+                this.fileViewer.open(file);
+            } else {
+                window.open(result.url, "_blank");
+            }
         } else {
             window.open(result.url, "_blank");
         }
