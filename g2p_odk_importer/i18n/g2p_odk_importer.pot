@@ -107,7 +107,7 @@ msgstr ""
 
 #. module: g2p_odk_importer
 #: model_terms:ir.ui.view,arch_db:g2p_odk_importer.odk_res_config_settings_view_form
-msgid "Enable Async ODK import"
+msgid "Enable Background Sync for ODK Import"
 msgstr ""
 
 #. module: g2p_odk_importer
@@ -279,8 +279,8 @@ msgstr ""
 #. module: g2p_odk_importer
 #: model_terms:ir.ui.view,arch_db:g2p_odk_importer.odk_res_config_settings_view_form
 msgid ""
-"Once enabled, the ODK import will be done asynchronously by first fetching "
-"the instance ID from the ODK server"
+"Once enabled, the ODK import will be done by first fetching the instance ID "
+"from the ODK server and running the process in the background."
 msgstr ""
 
 #. module: g2p_odk_importer
