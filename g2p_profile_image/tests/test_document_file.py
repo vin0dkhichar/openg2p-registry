@@ -11,9 +11,14 @@ class TestG2PDocumentFile(TransactionCase):
         cls.partner = cls.env["res.partner"].create({"name": "Test Partner"})
 
         # Get or create profile tag
-        cls.profile_tag = cls.env["g2p.document.tag"].search([("name", "=", "Profile Image")], limit=1)
-        if not cls.profile_tag:
-            cls.profile_tag = cls.env["g2p.document.tag"].create({"name": "Profile Image"})
+        cls.profile_tag = cls._create_profile_tag()
+
+    @classmethod
+    def _create_profile_tag(cls):
+        """Get existing profile tag or create new one"""
+        # if profile image tag is exist then first rmove it
+        cls.env["g2p.document.tag"].search([("name", "=", "Profile Image")]).unlink()
+        return cls.env["g2p.document.tag"].create({"name": "Profile Image"})
 
     def test_01_create_file_without_profile_tag(self):
         """Test creating a file without profile tag"""
