@@ -20,8 +20,8 @@
                             <field name="enable_odk" />
                         </setting>
                         <setting
-                            string="Enable Async ODK import"
-                            help="Once enabled, the ODK import will be done asynchronously by first fetching the instance ID from the ODK server"
+                            string="Enable Background Sync for ODK Import"
+                            help="Once enabled, the ODK import will be done by first fetching the instance ID from the ODK server and running the process in the background."
                         >
                             <field name="enable_odk_async" />
                         </setting>
