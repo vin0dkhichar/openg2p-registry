@@ -14,7 +14,6 @@
                             <field name="file_size" />
                             <field name="file_type" />
                             <!-- Widget provided by g2p_documents module for document preview and viewing -->
-                            <field name="is_encrypted" column_invisible="True" />
                             <widget name="action_preview" />
                         </tree>
                     </field>
@@ -37,7 +36,6 @@
                             <field name="file_size" />
                             <field name="file_type" />
                             <!-- Widget provided by g2p_documents module for document preview and viewing -->
-                            <field name="is_encrypted" column_invisible="True" />
                             <widget name="action_preview" />
                         </tree>
                     </field>
