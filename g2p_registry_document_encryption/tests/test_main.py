@@ -8,6 +8,7 @@ class TestCustomStorageFileController(HttpCase):
     def setUp(self):
         super().setUp()
         # Create a sample storage file for tests
+        self.env["g2p.document.tag"].create({"name": "Profile Image"})
         backend = self.env["storage.backend"].create({"name": "Test Backend"})
         self.storage_file = self.env["storage.file"].create(
             {
