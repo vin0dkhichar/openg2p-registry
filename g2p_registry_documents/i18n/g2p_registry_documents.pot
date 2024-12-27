@@ -25,11 +25,6 @@ msgid "Documents"
 msgstr ""
 
 #. module: g2p_registry_documents
-#: model:ir.model.fields,field_description:g2p_registry_documents.field_storage_file__is_encrypted
-msgid "Encrypted"
-msgstr ""
-
-#. module: g2p_registry_documents
 #: model_terms:ir.ui.view,arch_db:g2p_registry_documents.view_registrant_documents_form_group
 #: model_terms:ir.ui.view,arch_db:g2p_registry_documents.view_registrant_documents_form_individual
 msgid "Name"
