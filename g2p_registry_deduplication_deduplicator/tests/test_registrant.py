@@ -8,6 +8,7 @@ class TestRegistrant(TransactionCase):
         self.registrant = self.env["res.partner"].create({"name": "Test Registrant"})
 
     def test_view_deduplicator_duplicates(self):
+        # Test the view_deduplicator_duplicates method.
         result = self.registrant.view_deduplicator_duplicates()
         self.assertEqual(result["type"], "ir.actions.client")
         self.assertEqual(
