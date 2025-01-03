@@ -26,6 +26,7 @@ class ODKClient:
         form_id,
         target_registry,
         json_formatter=".",
+        backend_id=None,
     ):
         self.id = _id
         self.base_url = base_url.rstrip("/")
@@ -37,6 +38,7 @@ class ODKClient:
         self.env = env
         self.json_formatter = json_formatter
         self.target_registry = target_registry
+        self.backend_id = backend_id
 
     def login(self):
         login_url = f"{self.base_url}/v1/sessions"
@@ -216,14 +218,14 @@ class ODKClient:
         if not instance_id:
             return
 
-        exit_attachment = self.list_expected_attachments(
+        all_attachments = self.list_expected_attachments(
             self.base_url, self.project_id, self.form_id, instance_id, self.session
         )
-        if not exit_attachment:
+        if not all_attachments:
             return
 
         first_image_stored = False
-        for attachment in exit_attachment:
+        for attachment in all_attachments:
             filename = attachment["name"]
             get_attachment = self.download_attachment(
                 self.base_url, self.project_id, self.form_id, instance_id, filename, self.session
@@ -235,21 +237,20 @@ class ODKClient:
                 mapped_json["image_1920"] = attachment_base64
                 first_image_stored = True
             else:
-                backend_id = (
-                    self.env.ref("storage_backend.default_storage_backend").id
-                    or self.env["storage.backend"].search([], limit=1).id
-                )
-                mapped_json["supporting_documents_ids"] = [
+                if "supporting_documents_ids" not in mapped_json:
+                    mapped_json["supporting_documents_ids"] = []
+
+                mapped_json["supporting_documents_ids"].append(
                     (
                         0,
                         0,
                         {
-                            "backend_id": backend_id,
+                            "backend_id": self.backend_id,
                             "name": attachment["name"],
                             "data": attachment_base64,
                         },
                     )
-                ]
+                )
 
     def get_member_kind(self, record):
         kind_as_str = record.get("kind", None)
@@ -371,6 +372,7 @@ class ODKClient:
             mapped_json.update({"name": f"{mapped_json['family_name']} {mapped_json['given_name']}"})
 
             self.handle_one2many_fields(mapped_json)
+            self.handle_media_import(member, mapped_json)
 
             updated_mapped_json = self.get_addl_data(mapped_json)
 

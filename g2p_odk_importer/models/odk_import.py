@@ -40,6 +40,19 @@ class OdkImport(models.Model):
 
     enable_import_instance = fields.Char(string="ODK Setting Param", compute="_compute_config_param_value")
 
+    backend_id = fields.Many2one(
+        "storage.backend",
+        "Storage",
+        index=True,
+        required=True,
+        default=lambda self: self._get_default_backend(),
+    )
+
+    def _get_default_backend(self):
+        return self.env.ref("storage_backend.default_storage_backend") or self.env["storage.backend"].search(
+            [], limit=1
+        )
+
     @api.depends()
     def _compute_config_param_value(self):
         config_value = self.env["ir.config_parameter"].sudo().get_param("g2p_odk_importer.enable_odk")
@@ -71,6 +84,7 @@ class OdkImport(models.Model):
                 config.odk_config.form_id,
                 config.target_registry,
                 config.json_formatter,
+                backend_id=config.backend_id.id,
             )
             client.login()
             imported = client.import_record_by_instance_id(
@@ -151,6 +165,7 @@ class OdkImport(models.Model):
                 config.odk_config.form_id,
                 config.target_registry,
                 config.json_formatter,
+                backend_id=config.backend_id.id,
             )
             client.login()
             if enable_odk_async:
@@ -262,6 +277,7 @@ class OdkImport(models.Model):
                 instance_id.odk_import_id.odk_config.form_id,
                 instance_id.odk_import_id.target_registry,
                 instance_id.odk_import_id.json_formatter,
+                backend_id=instance_id.odk_import_id.backend_id.id,
             )
             client.login()
             try:

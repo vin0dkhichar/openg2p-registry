@@ -99,6 +99,7 @@
                     </div>
                     <group string="ODK Configuration">
                         <field name="odk_config" />
+                        <field name="backend_id" />
                     </group>
                     <group string="Target settings">
                         <field name="target_registry" />
