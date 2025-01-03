@@ -380,6 +380,11 @@ msgid "Stop"
 msgstr ""
 
 #. module: g2p_odk_importer
+#: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_import__backend_id
+msgid "Storage"
+msgstr ""
+
+#. module: g2p_odk_importer
 #: model:ir.model.fields,field_description:g2p_odk_importer.field_odk_import__target_registry
 msgid "Target Registry"
 msgstr ""
