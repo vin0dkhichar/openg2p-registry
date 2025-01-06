@@ -369,8 +369,6 @@ class ODKClient:
             elif self.target_registry == "group":
                 mapped_json.update({"is_registrant": True, "is_group": True})
 
-            mapped_json.update({"name": f"{mapped_json['family_name']} {mapped_json['given_name']}"})
-
             self.handle_one2many_fields(mapped_json)
             self.handle_media_import(member, mapped_json)
 
