@@ -701,7 +701,9 @@ class TestODKClient(TransactionCase):
         # Mock response data
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.json.return_value = {"value": [{"family_name": "Doe", "given_name": "John"}]}
+        mock_response.json.return_value = {
+            "value": [{"name": "Doe John", "family_name": "Doe", "given_name": "John"}]
+        }
 
         with patch("requests.get") as mock_get:
             mock_get.return_value = mock_response
@@ -729,7 +731,9 @@ class TestODKClient(TransactionCase):
         # Mock response data
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.json.return_value = {"value": [{"family_name": "Family", "given_name": "Group"}]}
+        mock_response.json.return_value = {
+            "value": [{"name": "Family Group", "family_name": "Family", "given_name": "Group"}]
+        }
 
         with patch("requests.get") as mock_get:
             mock_get.return_value = mock_response
@@ -860,7 +864,9 @@ class TestODKClient(TransactionCase):
         # Mock response for submissions
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.json.return_value = {"value": [{"family_name": "Doe", "given_name": "John"}]}
+        mock_response.json.return_value = {
+            "value": [{"name": "Doe John", "family_name": "Doe", "given_name": "John"}]
+        }
         mock_get.return_value = mock_response
 
         # Call the method
