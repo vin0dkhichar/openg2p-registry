@@ -189,7 +189,7 @@ class OdkImport(models.Model):
                             _logger.error(f"Missing '__id' in submission: {instance}")
 
                 config.update({"last_sync_time": fields.Datetime.now()})
-                self.process_pending_instances()
+                return self.process_pending_instances()
             else:
                 imported = client.import_delta_records(last_sync_timestamp=config.last_sync_time)
                 if "form_updated" in imported:
@@ -254,14 +254,33 @@ class OdkImport(models.Model):
         pending_instance_ids = self.env["odk.instance.id"].search([("status", "=", "pending")])
         if not pending_instance_ids:
             _logger.info("No pending instance IDs found.")
-            return
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "type": "warning",
+                    "message": "No pending instance IDs found to process.",
+                    "next": {"type": "ir.actions.act_window_close"},
+                },
+            }
 
-        _logger.info(f"Found {len(pending_instance_ids)} pending instance IDs.")
+        total_instances = len(pending_instance_ids)
+        _logger.info(f"Found {total_instances} pending instance IDs.")
 
         for batch_start in range(0, len(pending_instance_ids), batch_size):
             batch = pending_instance_ids[batch_start : batch_start + batch_size]
             _logger.info(f"Submitting batch of {len(batch)} instance IDs.")
             self.with_delay()._process_instance_id(batch)
+
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "type": "success",
+                "message": f"Started the import process for {total_instances} registrants in batches.",
+                "next": {"type": "ir.actions.act_window_close"},
+            },
+        }
 
     def _process_instance_id(self, instance_ids):
         for instance_id in instance_ids:
