@@ -36,7 +36,7 @@ class G2PDocumentFile(models.Model):
 
     def _compute_file_type(self):
         for file in self:
-            if file.extension and isinstance(file.mimetype, str):
+            if isinstance(file.mimetype, str):
                 file.file_type = file.mimetype.split("/")[1].upper()
             else:
                 file.file_type = False
@@ -77,11 +77,13 @@ class G2PDocumentFile(models.Model):
 
     def _get_mime_type(self, binary_data):
         try:
+            if binary_data[:4] == b"%PDF":
+                return "application/pdf"
             image = Image.open(io.BytesIO(binary_data))
             mime_type = Image.MIME[image.format]
             return mime_type
         except OSError as e:
-            _logger.info(f"Image processing error: {e}")
+            _logger.info(f"Unexpected error in MIME detection: {e}")
             return None
 
     def _compute_data(self):
