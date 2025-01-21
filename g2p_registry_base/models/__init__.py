@@ -7,3 +7,4 @@ from . import phone_number
 from . import tags
 from . import registry_config
 from . import district_config
+from . import g2p_que_background_task
