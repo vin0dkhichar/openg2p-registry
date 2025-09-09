@@ -8,6 +8,125 @@ $(document).ready(function () {
 });
 
 // eslint-disable-next-line no-unused-vars
+function addIdRow(isUpdate) {
+    var tableBody = isUpdate
+        ? document.querySelector("#id_table_body_update")
+        : document.querySelector("#id_table_body_create");
+
+    if (!tableBody) {
+        tableBody = document.querySelector("#id_table_body_create, #id_table_body_update");
+    }
+
+    if (!tableBody) {
+        console.error(
+            "Table body not found. Available IDs:",
+            Array.from(document.querySelectorAll('[id*="id_table"]')).map((el) => el.id)
+        );
+        return;
+    }
+
+    var noIdsRow = tableBody.querySelector(".no-ids-row");
+
+    if (noIdsRow) {
+        noIdsRow.remove();
+    }
+
+    var newRow = document.createElement("tr");
+
+    var idTypeOptions = '<option value="">Select ID Type</option>';
+    if (window.idTypesData) {
+        window.idTypesData.forEach(function (idType) {
+            idTypeOptions += `<option value="${idType.id}">${idType.name}</option>`;
+        });
+    }
+
+    newRow.innerHTML = `
+        <td>
+            <select class="form-select id-type-select" name="id_type[]" required="required">
+                ${idTypeOptions}
+            </select>
+        </td>
+        <td>
+            <input
+                type="text"
+                class="form-control id-value-input"
+                name="id_value[]"
+                placeholder="Enter ID Number"
+                required="required"
+            />
+        </td>
+        <td>
+            <button type="button" class="btn btn-sm" onclick="removeIdRow(this)">
+                <i class="fa fa-trash" style="color: red;"></i>
+            </button>
+        </td>
+    `;
+    tableBody.appendChild(newRow);
+}
+
+// eslint-disable-next-line no-unused-vars
+function removeIdRow(button) {
+    var row = button.closest("tr");
+    var tableBody = row.parentNode;
+    row.remove();
+
+    if (tableBody.children.length === 0) {
+        var noIdsRow = document.createElement("tr");
+        noIdsRow.className = "no-ids-row";
+        noIdsRow.innerHTML = `
+            <td colspan="3" class="text-center text-muted">
+                No ID documents added yet. Click "Add ID" to add one.
+            </td>
+        `;
+        tableBody.appendChild(noIdsRow);
+    }
+}
+
+function collectIdData() {
+    var idRows = document.querySelectorAll(
+        "#id_table_body_update tr:not(.no-ids-row), #id_table_body_create tr:not(.no-ids-row)"
+    );
+    var form = document.querySelector("#creategroupForm, #updategroupForm");
+
+    if (!form) {
+        console.error("Form not found");
+        return;
+    }
+
+    var existingIdInputs = form.querySelectorAll('input[name^="reg_ids"]');
+    existingIdInputs.forEach(function (input) {
+        input.remove();
+    });
+
+    idRows.forEach(function (row, index) {
+        var idTypeSelect = row.querySelector(".id-type-select");
+        var idValueInput = row.querySelector(".id-value-input");
+        var recordId = row.getAttribute("data-id-record-id");
+
+        if (idTypeSelect && idValueInput && idTypeSelect.value && idValueInput.value) {
+            var idTypeInput = document.createElement("input");
+            idTypeInput.type = "hidden";
+            idTypeInput.name = `reg_ids[${index}][id_type]`;
+            idTypeInput.value = idTypeSelect.value;
+            form.appendChild(idTypeInput);
+
+            idValueInput = document.createElement("input");
+            idValueInput.type = "hidden";
+            idValueInput.name = `reg_ids[${index}][value]`;
+            form.appendChild(idValueInput);
+
+            if (recordId) {
+                var recordIdInput = document.createElement("input");
+                recordIdInput.type = "hidden";
+                recordIdInput.name = `reg_ids[${index}][id]`;
+                recordIdInput.value = recordId;
+                form.appendChild(recordIdInput);
+            }
+        }
+    });
+}
+
+// eslint-disable-next-line no-unused-vars
 function validateForm(isCreateForm) {
     var requiredFields = document.querySelectorAll(".s_website_form_field [required]");
     var isValid = true;
@@ -44,9 +163,42 @@ function validateForm(isCreateForm) {
         }
     });
 
+    var idRows = document.querySelectorAll(
+        "#id_table_body_update tr:not(.no-ids-row), #id_table_body_create tr:not(.no-ids-row)"
+    );
+    idRows.forEach(function (row) {
+        var idTypeSelect = row.querySelector(".id-type-select");
+        var idValueInput = row.querySelector(".id-value-input");
+
+        if (idTypeSelect && idValueInput) {
+            idTypeSelect.style.border = "";
+            idValueInput.style.border = "";
+
+            if (!idTypeSelect.value || !idValueInput.value.trim()) {
+                if (!idTypeSelect.value) {
+                    idTypeSelect.style.border = "1px solid red";
+                }
+                if (!idValueInput.value.trim()) {
+                    idValueInput.style.border = "1px solid red";
+                }
+                isValid = false;
+
+                const idSection = document.querySelector("#id_section, #id_section_create");
+                if (idSection && !idSection.classList.contains("show")) {
+                    const accordionButton = document.querySelector(`[data-bs-target="#${idSection.id}"]`);
+                    if (accordionButton) {
+                        accordionButton.click();
+                    }
+                }
+            }
+        }
+    });
+
     if (isValid && isCreateForm) {
+        collectIdData();
         document.getElementById("creategroupForm").submit();
     } else if (isValid && !isCreateForm) {
+        collectIdData();
         document.getElementById("updategroupForm").submit();
     }
 }

@@ -53,10 +53,13 @@ class G2PregistrationPortalBase(AgentPortalBase):
     def group_create(self, **kw):
         self.check_roles("Agent")
         gender = request.env["gender.type"].sudo().search([])
-
+        id_types = request.env["g2p.id.type"].sudo().search([])
         return request.render(
             "g2p_registration_portal_base.group_create_form_template",
-            {"gender": gender},
+            {
+                "gender": gender,
+                "id_types": id_types,
+            },
         )
 
     @http.route(
@@ -131,6 +134,18 @@ class G2PregistrationPortalBase(AgentPortalBase):
                     beneficiary_obj.write({"group_membership_ids": group_membership_vals})
 
             beneficiary = request.env["res.partner"].sudo().browse(beneficiary_id)
+            id_types = request.httprequest.form.getlist("id_type[]")
+            id_values = request.httprequest.form.getlist("id_value[]")
+
+            for i in range(len(id_types)):
+                if id_types[i] and id_values[i]:
+                    request.env["g2p.reg.id"].sudo().create(
+                        {
+                            "partner_id": beneficiary_id,
+                            "id_type": int(id_types[i]),
+                            "value": id_values[i].strip(),
+                        }
+                    )
 
             if not beneficiary:
                 return request.render(
@@ -158,6 +173,8 @@ class G2PregistrationPortalBase(AgentPortalBase):
         try:
             gender = request.env["gender.type"].sudo().search([])
             beneficiary = request.env["res.partner"].sudo().browse(_id)
+            id_types = request.env["g2p.id.type"].sudo().search([])
+            reg_ids = request.env["g2p.reg.id"].sudo().search([("partner_id", "=", beneficiary.id)])
 
             if not beneficiary:
                 return request.render(
@@ -171,6 +188,8 @@ class G2PregistrationPortalBase(AgentPortalBase):
                     "beneficiary": beneficiary,
                     "gender": gender,
                     "individuals": beneficiary.group_membership_ids.mapped("individual"),
+                    "id_types": id_types,
+                    "reg_ids": reg_ids,
                 },
             )
 
@@ -206,6 +225,35 @@ class G2PregistrationPortalBase(AgentPortalBase):
                     beneficiary.write({key: value})
                 else:
                     _logger.error(f"Ignoring invalid key: {key}")
+
+            existing_ids = request.env["g2p.reg.id"].sudo().search([("partner_id", "=", beneficiary.id)])
+            existing_ids.sudo().unlink()
+
+            id_types = request.httprequest.form.getlist("id_type[]")
+            id_values = request.httprequest.form.getlist("id_value[]")
+
+            used_id_types = set()
+            for i in range(len(id_types)):
+                if id_types[i] and id_values[i].strip():
+                    id_type_int = int(id_types[i])
+
+                    if id_type_int in used_id_types:
+                        return request.render(
+                            "g2p_registration_portal_base.error_template",
+                            {
+                                "error_message": "ID Type must be unique. "
+                                "You have submitted duplicate ID types."
+                            },
+                        )
+                    used_id_types.add(id_type_int)
+
+                    request.env["g2p.reg.id"].sudo().create(
+                        {
+                            "partner_id": beneficiary.id,
+                            "id_type": id_type_int,
+                            "value": id_values[i].strip(),
+                        }
+                    )
 
             return request.redirect("/portal/registration/group")
 
@@ -473,9 +521,10 @@ class G2PregistrationPortalBase(AgentPortalBase):
     def individual_registrar_create(self, **kw):
         self.check_roles("Agent")
         gender = request.env["gender.type"].sudo().search([])
+        id_types = request.env["g2p.id.type"].sudo().search([])
         return request.render(
             "g2p_registration_portal_base.individual_registrant_form_template",
-            {"gender": gender},
+            {"gender": gender, "id_types": id_types},
         )
 
     @http.route(
@@ -501,20 +550,37 @@ class G2PregistrationPortalBase(AgentPortalBase):
             else:
                 birthdate = kw.get("birthdate")
 
-            request.env["res.partner"].sudo().create(
-                {
-                    "name": name,
-                    "given_name": kw.get("given_name"),
-                    "addl_name": kw.get("addl_name"),
-                    "family_name": kw.get("family_name"),
-                    "birthdate": birthdate,
-                    "gender": kw.get("gender"),
-                    "email": kw.get("email"),
-                    "user_id": user.id,
-                    "is_registrant": True,
-                    "is_group": False,
-                }
+            partner = (
+                request.env["res.partner"]
+                .sudo()
+                .create(
+                    {
+                        "name": name,
+                        "given_name": kw.get("given_name"),
+                        "addl_name": kw.get("addl_name"),
+                        "family_name": kw.get("family_name"),
+                        "birthdate": birthdate,
+                        "gender": kw.get("gender"),
+                        "email": kw.get("email"),
+                        "user_id": user.id,
+                        "is_registrant": True,
+                        "is_group": False,
+                    }
+                )
             )
+
+            id_types = request.httprequest.form.getlist("id_type[]")
+            id_values = request.httprequest.form.getlist("id_value[]")
+
+            for i in range(len(id_types)):
+                if id_types[i] and id_values[i]:
+                    request.env["g2p.reg.id"].sudo().create(
+                        {
+                            "partner_id": partner.id,
+                            "id_type": int(id_types[i]),
+                            "value": id_values[i],
+                        }
+                    )
 
             return request.redirect("/portal/registration/individual")
 
@@ -536,6 +602,8 @@ class G2PregistrationPortalBase(AgentPortalBase):
         try:
             gender = request.env["gender.type"].sudo().search([])
             beneficiary = request.env["res.partner"].sudo().browse(_id)
+            id_types = request.env["g2p.id.type"].sudo().search([])
+            reg_ids = request.env["g2p.reg.id"].sudo().search([("partner_id", "=", beneficiary.id)])
             if not beneficiary:
                 return request.render(
                     "g2p_registration_portal_base.error_template",
@@ -547,6 +615,8 @@ class G2PregistrationPortalBase(AgentPortalBase):
                 {
                     "beneficiary": beneficiary,
                     "gender": gender,
+                    "id_types": id_types,
+                    "reg_ids": reg_ids,
                 },
             )
         except Exception:
@@ -578,7 +648,7 @@ class G2PregistrationPortalBase(AgentPortalBase):
                 else:
                     birthdate = kw.get("birthdate")
 
-                member = member.sudo().write(
+                member.sudo().write(
                     {
                         "name": name,
                         "given_name": kw.get("given_name"),
@@ -591,6 +661,36 @@ class G2PregistrationPortalBase(AgentPortalBase):
                     }
                 )
 
+                existing_ids = request.env["g2p.reg.id"].sudo().search([("partner_id", "=", member.id)])
+                existing_ids.sudo().unlink()
+
+                id_types = request.httprequest.form.getlist("id_type[]")
+                id_values = request.httprequest.form.getlist("id_value[]")
+
+                used_id_types = set()
+
+                for i in range(len(id_types)):
+                    if id_types[i] and id_values[i] and id_values[i].strip():
+                        id_type_int = int(id_types[i])
+
+                        if id_type_int in used_id_types:
+                            return request.render(
+                                "g2p_registration_portal_base.error_template",
+                                {
+                                    "error_message": "ID Type must be unique. "
+                                    "You have submitted duplicate ID types in the form."
+                                },
+                            )
+
+                        used_id_types.add(id_type_int)
+
+                        request.env["g2p.reg.id"].sudo().create(
+                            {
+                                "partner_id": member.id,
+                                "id_type": id_type_int,
+                                "value": id_values[i].strip(),
+                            }
+                        )
             return request.redirect("/portal/registration/individual")
 
         except Exception as e:
